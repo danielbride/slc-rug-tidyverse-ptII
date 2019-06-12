@@ -1,0 +1,464 @@
+---
+title: "Tidying Up With ~~Marie Kondo~~ `purrr` et al."
+subtitle: "<small>or: How I Learned to Stop Worrying and Love the Tidyverse</small>"
+author: "Daniel Bride"
+
+output: 
+  revealjs::revealjs_presentation:
+    highlight: haddock
+    df_print: paged
+    theme: solarized
+    transition: slide
+    self_contained: FALSE
+    reveal_plugins: ["notes", "zoom"]
+    slide_level: 1
+    css: custom-reveal.css
+
+---
+```{r setup, include=FALSE}
+library(tidyverse)
+library(lubridate)
+library(magick)
+library(here)
+source(here("src/create-fake-event-data.R"))
+```
+
+```{r imgs, include=FALSE}
+usage <- 
+  image_read("https://pbs.twimg.com/media/CfIflFzVAAAhWpQ.jpg") %>% 
+  image_scale(geometry_size_percent(60))
+
+garner_tweet <- image_read(here("resources/garner-tweet.PNG"))
+
+map_diagram <- image_read("https://d33wubrfki0l68.cloudfront.net/f0494d020aa517ae7b1011cea4c4a9f21702df8b/2577b/diagrams/functionals/map.png") %>% 
+  image_scale(geometry_size_percent(90))
+  
+map_df_diagram <- image_read("https://d33wubrfki0l68.cloudfront.net/12f6af8404d9723dff9cc665028a35f07759299d/d0d9a/diagrams/functionals/map-list.png")
+
+map_types_table <- image_read(here("resources", "map-types-table.PNG"))
+```
+
+# Tidyverse Pt. II
+- Part I covers many cool packages
+  - https://github.com/slc-rug/tidyverse-explore
+- I'll only cover one cool package: `purrr` 
+- That's okay.
+
+::: notes
+- Part I covers many cool packages
+- We're only covering one cool package today. That's okay.
+- I'll use Tidyverse tools along the way.
+:::
+
+# Roadmap
+- Tidyverse philosophy lesson
+- Apply functions with `map()`, `modify()`
+- Modify functions with `safely()`, `quietly()`, `possibly()`
+- Reduce vectors with `reduce()`, `accumulate()`
+
+::: notes
+- At the risk of seeming uncool to advanced users, I'll simplify to a beginner level
+- But first, an interesting diversion.
+:::
+
+# Interesting Diversion
+<h2>An Impassioned Defense</h2>
+`r garner_tweet`
+
+::: notes
+- Bryan Garner sticks up for what's right.
+- Of all the people being outraged about all the things, he chose this.
+- ¿Why does he care so much?
+:::
+
+# Interesting Diversion
+<h2>Garner's other work</h2>
+`r usage`
+
+::: notes
+- Garner's work is at the heart of a heated debate you probably didn't know existed: 
+  - Descriptivism vs. Prescriptivism
+:::
+
+# Interesting(?) Diversion
+<h2>Descriptive vs. Prescriptive Grammar</h2>
+<div style="float: left; width: 50%;">
+<h3>Descriptive:</h3>
+
+- [Rules derived from usage]{.fragment .highlight-current-blue data-fragment-index="1"}
+- [All usage equally valid]{.fragment .highlight-current-blue data-fragment-index="2"}
+- [Comprehensive]{.fragment .highlight-current-blue data-fragment-index="3"}
+
+</div>
+
+<div style="float: right; width: 50%;">
+<h3>Prescriptive:</h3>
+
+- [Rules inform usage]{.fragment .highlight-current-blue data-fragment-index="1"}
+- [One correct/best usage]{.fragment .highlight-current-blue data-fragment-index="2"}
+- [Intentionally constrained]{.fragment .highlight-current-blue data-fragment-index="3"}
+
+</div>
+
+::: notes
+- Stay with me.
+:::
+
+# Tidyverse Philosophy
+<h2>Why Are We Talking About Grammar?</h2>
+- Prescriptivism is [good for beginners]{.fragment .highlight-current-blue}
+- Prescriptivism can [outsource cognitive burden]{.fragment .highlight-current-blue}
+- Prescriptivism can [train a way of thinking]{.fragment .highlight-current-blue}
+- [The Tidyverse is prescriptive]{.fragment .highlight-current-red}
+
+::: notes
+- **Good for beginners**: start with mimicry, diverge thoughtfully
+- **Cognitive burden**: numerous alternatives sap brainpower
+  - Ever dealt with a novel of a restaurant menu?
+- Language drives thinking
+:::
+
+# Tidyverse Philosophy
+<h2>Tidy Tendencies</h2>
+- [Reuse existing data structures]{style="color: lightgray"}
+- Compose simple functions with the pipe (`%>%`)
+- Embrace functional (vs. imperative) programming
+- Design for humans
+
+[Reference: https://tidyverse.tidyverse.org/articles/manifesto.html]{style="float: right; font-size: small; padding: 50px 0;"}
+
+::: notes
+- Pipeable
+- Functional
+- Design
+:::
+
+# Learn to Love the Tidyverse
+1. Try it
+2. Ask why
+3. Branch out confidently
+
+::: notes
+- Rules help master spoken language
+- Rules help you master the R language
+- Whether your first encounter with code
+- Or you're bewildered at its quirky differences from other langs
+:::
+
+# The `purrr` Package (Finally!)
+- A "functional programming toolkit" 
+- Built for complex, iterative tasks
+- `install.packages("tidyverse")`
+
+::: notes
+- Built to accomplish iterative tasks
+- Designed to help you think through iterative tasks
+:::
+
+# Apply Functions
+<h2>`map()`</h2>
+- Do something to/with each element of a list or vector
+- Return a list* of results
+- <div class="fragment fade-up">\*Hold your horses. There are ways to return other types.</div>
+
+# Apply Functions: `map()`
+<h2>`map(`[`.x`]{.fragment .highlight-red data-fragment-index="1"}`, `[`.f`]{.fragment .highlight-blue data-fragment-index="2"}`, `[`...`]{.fragment .highlight-green data-fragment-index="3"}`)`</h2>
+<h2>[Do something]{.fragment .highlight-blue data-fragment-index="2"} to/with each element of [a list or vector]{.fragment .highlight-red data-fragment-index="1"}</h2>
+- [`.x`]{.fragment .highlight-red data-fragment-index="1"}: A vector or list
+- [`.f`]{.fragment .highlight-blue data-fragment-index="2"}: 
+  - A function name or formula to apply a function iteratively, or 
+  - A vector or list to specify elements to extract from `.x`
+- [`...`]{.fragment .highlight-green data-fragment-index="3"}: additional arguments passed to `.f`
+
+# `map(.x, .f, ...)`
+<h2>Visually:</h2>
+`r map_diagram`
+
+[Reference: https://adv-r.hadley.nz/functionals.html]{style="float: right; font-size: small; padding: 50px 0;"}
+
+# `map(.x, .f, ...)`
+<h2>Three Ways to Specify Functions</h2>
+- `purrr`-style anonymous function shortcut (`~ mean(.x)`)
+- Named function (`.f = mean`)
+- Full function definition (`.f = function(x) mean(x)`)
+
+# `map(.x, .f, ...)`
+<h2>Let's make some unique example data</h2>
+- Using [`babynames`](https://github.com/hadley/babynames) and [`lexicon`](https://github.com/trinker/lexicon)
+- Unpopular baby names, popular sayings, inscrutable internet slang
+```{r}
+baby_pool <- 
+  babynames::babynames %>% 
+  group_by(sex, first_letter = str_sub(name, 1L, 1L)) %>% 
+  top_n(-10, prop) %>% 
+  pull(name) %>% 
+  sort()
+
+cliches <- lexicon::cliches
+
+web_slang <- 
+  lexicon::hash_internet_slang
+```
+
+::: notes
+- Mention `set_names()` from `purrr`
+- And `deframe()` from `tibble()`
+:::
+
+# `map(.x, .f, ...)`
+<h2>Write function with `purrr` shortcut</h2>
+<h3>Organize baby names by first letter</h3>
+```{r}
+chosen_babies <- 
+  map(.x = LETTERS,
+      .f = ~ {str_subset(baby_pool, paste0("^", .x))}) %>% 
+  set_names(LETTERS)
+```
+- `~` is shorthand for function(x) { }
+- When specifying this way, use `.` or `.x` to refer to data
+
+::: notes
+- Mention `set_names()` from `purrr`
+:::
+
+# `map(.x, .f, ...)`
+<h2>Write named function</h2>
+<h3>Output first three names for each letter</h3>
+
+<small>- Notice we're using `...` to pass addtl argument (`3`) to `head()`</small>
+```{r}
+chosen_babies %>% map(head, 3)
+```
+
+# `map(.x, .f, ...)`
+<h2>Write full function definition</h2>  
+<h3>Match cliches to first letter</h3>
+```{r}
+alphabetical_cliches <- 
+  LETTERS %>% 
+  map(function(ltr) {
+    cliches_sub <- str_subset(cliches, 
+                              regex(paste0("^", ltr), ignore_case = TRUE))
+    if(length(cliches_sub)) cliches_sub
+    else "you're indescribable"}) %>% 
+  set_names(LETTERS)
+```
+
+::: notes
+- Probably a case where you'd want to define the function elsewhere, call it within map
+:::
+
+# ...Pardon the Interruption...
+We'll Use This Later
+```{r}
+everything <- list(babies = chosen_babies, 
+                   cliches = alphabetical_cliches, 
+                   web_slang = deframe(web_slang)[1:26])
+```
+
+# `map(.x, .f, ...)`
+<h2>Use `map()` to extract elements</h2>
+- An integer n extracts nth item from each element of the list
+```{r}
+alphabetical_cliches %>% map(15, .default = "NOTHIN' TO SEE HERE!")
+```
+
+::: notes
+- If you don't specify .default, you get an error if that index doesn't exist
+:::
+# `map(.x, .f, ...)`
+<h2>Use `map()` to extract elements</h2>
+- For named vectors/lists, a string extracts thus-named items from each
+```{r}
+everything %>% 
+  map("Q", .default = "---No match---")
+```
+
+# `map(.x, .f, ...)`
+<h2>Use `map()` to extract elements</h2>
+- Use multiple values to index multiple levels
+- Allowing you to access deeply nested values
+- Combine characters and integers in a list
+```{r}
+everything %>% 
+  map(list("Q", 3), .default = "***I got nothin'***")
+```
+
+# `map(.x, .f, ...)`
+<h2>Returning other types</h2>
+<h3 style="align: left">Obligatory `mtcars` example. Ugly version:</h3>
+
+```{r}
+map(mtcars, mean)
+```
+
+# `map(.x, .f, ...)`
+<h2>Returning other types</h2>
+- Just add a suffix: `map_*()` 
+- E.g., `map_int()`, `map_lgl()`, ...
+<h3>Better version:</h3>
+```{r}
+map_dbl(mtcars, mean)
+```
+- Names are conveniently preserved
+
+# Apply Functions Across Two Lists/Vectors
+<h2>`map2()`</h2>
+- Do something with each element of two lists or vectors
+- Return a list* of results
+- <div class="fragment fade-up">\*Or character vector (`map2_chr()`), or double vector (`map2_dbl()`), or...</div>
+
+# Apply Functions Across Two Lists/Vectors
+<h2>`map(`[`.x`]{.fragment .highlight-red data-fragment-index="1"}`, `[`.y`]{.fragment .highlight-red data-fragment-index="1"}`, `[`.f`]{.fragment .highlight-blue data-fragment-index="2"}`, `[`...`]{.fragment .highlight-green data-fragment-index="3"}`)`</h2>
+<h2>[Do something]{.fragment .highlight-blue data-fragment-index="2"} to/with each element of [two lists/vectors]{.fragment .highlight-red data-fragment-index="1"}</h2>
+- [`.x`]{.fragment .highlight-red data-fragment-index="1"}: A vector or list
+- [`.y`]{.fragment .highlight-red data-fragment-index="1"}: Another vector or list (length 1 or same as .x)
+- [`.f`]{.fragment .highlight-blue data-fragment-index="2"}: A function name or formula to apply a function iteratively
+- [`...`]{.fragment .highlight-green data-fragment-index="3"}: additional arguments passed to `.f`
+
+::: notes
+- The function needs to accept two arguments, or else why?
+:::
+
+# `map2(.x, .y, .f, ...)`
+<h3>Celebrate the babies of the alphabet with alliterative cliches</h3>
+```{r}
+map2_chr(.x = chosen_babies, 
+         .y = alphabetical_cliches,
+         ~ paste0(str_to_sentence(sample(.y, 1, TRUE)), ", ",
+                  str_to_sentence(sample(.x, 1)), "!"))
+```
+
+# So, `map3()`?
+<h1>Of course not!</h1>
+
+# Apply Functions With Many Arguments
+<h2>`pmap()`</h2>
+- Do something with each element of many lists/vectors
+- Return a list or typed vector of results
+
+# Apply Functions With Many Arguments
+<h2>`pmap(`[`.l`]{.fragment .highlight-red data-fragment-index="1"}`,  `[`.f`]{.fragment .highlight-blue data-fragment-index="2"}`, `[`...`]{.fragment .highlight-green data-fragment-index="3"}`)`</h2>
+<h2>[Do something]{.fragment .highlight-blue data-fragment-index="2"} to/with each element of [many lists/vectors]{.fragment .highlight-red data-fragment-index="1"}</h2>
+- [`.l`]{.fragment .highlight-red data-fragment-index="1"}: A **list** of vectors/lists to supply as arguments to a function
+  - All elements generally same length or length 1
+- [`.f`]{.fragment .highlight-blue data-fragment-index="2"}: A function name or formula to apply a function iteratively
+- [`...`]{.fragment .highlight-green data-fragment-index="3"}: additional arguments passed to `.f`
+
+# `pmap(.l, .f, ...)`
+```{r}
+pmap(.l = everything, .f = function(babies, cliches, web_slang, ...) {
+  paste0(str_to_sentence(web_slang), 
+                         ", ",
+                         str_to_sentence(sample(babies, 1, TRUE)), 
+                         "--", 
+                         sample(cliches, 1),
+                         "!")
+  })
+```
+
+
+# Using `map()` With Data Frames
+`r map_df_diagram`
+
+# Using `map()` With Data Frames
+- (Fake) data similar to a study on cardiac events and air pollution
+- For each event (case) in this set, need to compare PM2.5 (air pollution) on the same day of week in the same month
+```{r}
+ACS_events
+```
+
+# Using `map()` With Data Frames
+<h2>List columns</h2>
+```{r}
+nested <- 
+  ACS_events %>% 
+  mutate(id_date = map(.x = ref_date,
+                       .f = ~ {
+                         row_refdate <- .x
+                         month_dates <- seq(from = floor_date(.x, "month"),
+                                            to = rollback(ceiling_date(.x, "month")),
+                                            by = "day")
+                         keep(month_dates, ~ wday(.x) == wday(row_refdate))
+                       }))
+```
+
+# Using `map()` With Data Frames
+<h2>List columns</h2>
+- Each cell in `id_date` contains a list of 4 or 5 dates.
+```{r, echo=FALSE}
+nested
+```
+
+# Using `map()` With Data Frames
+<h2>Nesting and unnesting</h2>
+```{r}
+unnested <- 
+  nested %>% 
+  unnest(id_date) %>% 
+  arrange(id, id_date) %>% 
+  mutate(event = ref_date == id_date)
+unnested
+```
+
+# Using `map()` With Data Frames
+<h2>(Here's how it ends):</h2>
+```{r}
+unnested %>% 
+  left_join(PM25, by = c("id_date" = "date"))
+```
+
+# Modify a List
+<h2>`modify(.x, .f, ...)`</h2>
+- Behaves like `map()` 
+- **Except** returns the type of object it receives
+
+# Modify Functions
+<h2>`safely()`, `quietly()`, `possibly()`, et al.</h2>
+- "Adverbs": modify how functions ("verbs") behave
+- Handy complement to `map()` and friends
+
+# Modify Functions
+- `safely(.f, otherwise = NULL, quiet = TRUE)` 
+- Suppose I want to convert a bunch of things to dates
+- If I happen to have some errant values, I want to know about them
+- I don't want to stop everything because one date didn't work
+
+# Modify Functions
+- `safely(.f, otherwise = NULL, quiet = TRUE)` 
+```{r}
+bunch_o_ints <- list(1:2, "A", 4)
+
+safe_date <- safely(.f = as_date, 
+                    otherwise = "This position is empty")
+
+map(bunch_o_ints, safe_date, origin = origin)
+```
+
+# Reduce/Accumulate
+- `reduce(.x, .f, ..., .init .dir = c("forward", "backward"))`
+- `accumulate(.x, .f, ..., .init, .dir = c("forward", "backward"))`
+<h2>Simplest examples:</h2>
+```{r}
+reduce(1:10, `+`)
+
+accumulate(1:10, `+`)
+```
+
+# Reduce/Accumulate
+<h2>Bigger, more complex:</h2>
+```{r, eval=FALSE}
+list(df1, df2, df3, df4) %>% 
+  reduce(.f = full_join)
+```
+
+# A Map of `map()` Varieties
+`r map_types_table`
+
+[Reference: https://adv-r.hadley.nz/functionals.html]{style="float: right; font-size: small; padding: 50px 0;"}
+
+# Learn More
+- https://r4ds.had.co.nz/iteration.html
+- https://adv-r.hadley.nz/functionals.html
+- https://purrr.tidyverse.org
+

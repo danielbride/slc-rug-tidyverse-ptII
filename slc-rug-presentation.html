@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="generator" content="pandoc">
+  <meta name="author" content="Daniel Bride" />
+  <title>Tidying Up With Marie Kondo purrr et al.</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="slc-rug-presentation_files/reveal.js-3.3.0.1/css/reveal.css"/>
+
+
+<style type="text/css">
+a.sourceLine { display: inline-block; line-height: 1.25; }
+a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
+a.sourceLine:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+a.sourceLine { text-indent: -1em; padding-left: 1em; }
+}
+pre.numberSource a.sourceLine
+  { position: relative; left: -4em; }
+pre.numberSource a.sourceLine::before
+  { content: attr(data-line-number);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; pointer-events: all; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {  }
+@media screen {
+a.sourceLine::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; } /* Alert */
+code span.an { color: #008000; } /* Annotation */
+code span.at { } /* Attribute */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #0000ff; } /* ControlFlow */
+code span.ch { color: #008080; } /* Char */
+code span.cn { } /* Constant */
+code span.co { color: #008000; } /* Comment */
+code span.cv { color: #008000; } /* CommentVar */
+code span.do { color: #008000; } /* Documentation */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.im { } /* Import */
+code span.in { color: #008000; } /* Information */
+code span.kw { color: #0000ff; } /* Keyword */
+code span.op { } /* Operator */
+code span.ot { color: #ff4000; } /* Other */
+code span.pp { color: #ff4000; } /* Preprocessor */
+code span.sc { color: #008080; } /* SpecialChar */
+code span.ss { color: #008080; } /* SpecialString */
+code span.st { color: #008080; } /* String */
+code span.va { } /* Variable */
+code span.vs { color: #008080; } /* VerbatimString */
+code span.wa { color: #008000; font-weight: bold; } /* Warning */
+</style>
+
+<link rel="stylesheet" href="slc-rug-presentation_files/reveal.js-3.3.0.1/css/theme/solarized.css" id="theme">
+
+
+  <!-- some tweaks to reveal css -->
+  <style type="text/css">
+    .reveal h1 { font-size: 2.0em; }
+    .reveal h2 { font-size: 1.5em;  }
+    .reveal h3 { font-size: 1.25em;	}
+    .reveal h4 { font-size: 1em;	}
+
+    .reveal .slides>section,
+    .reveal .slides>section>section {
+      padding: 0px 0px;
+    }
+
+
+
+    .reveal table {
+      border-width: 1px;
+      border-spacing: 2px;
+      border-style: dotted;
+      border-color: gray;
+      border-collapse: collapse;
+      font-size: 0.7em;
+    }
+
+    .reveal table th {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      font-weight: bold;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+    .reveal table td {
+      border-width: 1px;
+      padding-left: 10px;
+      padding-right: 25px;
+      border-style: dotted;
+      border-color: gray;
+    }
+
+
+  </style>
+
+    <style type="text/css">code{white-space: pre;}</style>
+
+    <link rel="stylesheet" href="custom-reveal.css"/>
+
+<!-- Printing and PDF exports -->
+<script id="paper-css" type="application/dynamic-css">
+
+/* Default Print Stylesheet Template
+   by Rob Glazebrook of CSSnewbie.com
+   Last Updated: June 4, 2008
+
+   Feel free (nay, compelled) to edit, append, and
+   manipulate this file as you see fit. */
+
+
+@media print {
+
+	/* SECTION 1: Set default width, margin, float, and
+	   background. This prevents elements from extending
+	   beyond the edge of the printed page, and prevents
+	   unnecessary background images from printing */
+	html {
+		background: #fff;
+		width: auto;
+		height: auto;
+		overflow: visible;
+	}
+	body {
+		background: #fff;
+		font-size: 20pt;
+		width: auto;
+		height: auto;
+		border: 0;
+		margin: 0 5%;
+		padding: 0;
+		overflow: visible;
+		float: none !important;
+	}
+
+	/* SECTION 2: Remove any elements not needed in print.
+	   This would include navigation, ads, sidebars, etc. */
+	.nestedarrow,
+	.controls,
+	.fork-reveal,
+	.share-reveal,
+	.state-background,
+	.reveal .progress,
+	.reveal .backgrounds {
+		display: none !important;
+	}
+
+	/* SECTION 3: Set body font face, size, and color.
+	   Consider using a serif font for readability. */
+	body, p, td, li, div {
+		font-size: 20pt!important;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		color: #000;
+	}
+
+	/* SECTION 4: Set heading font face, sizes, and color.
+	   Differentiate your headings from your body text.
+	   Perhaps use a large sans-serif for distinction. */
+	h1,h2,h3,h4,h5,h6 {
+		color: #000!important;
+		height: auto;
+		line-height: normal;
+		font-family: Georgia, "Times New Roman", Times, serif !important;
+		text-shadow: 0 0 0 #000 !important;
+		text-align: left;
+		letter-spacing: normal;
+	}
+	/* Need to reduce the size of the fonts for printing */
+	h1 { font-size: 28pt !important;  }
+	h2 { font-size: 24pt !important; }
+	h3 { font-size: 22pt !important; }
+	h4 { font-size: 22pt !important; font-variant: small-caps; }
+	h5 { font-size: 21pt !important; }
+	h6 { font-size: 20pt !important; font-style: italic; }
+
+	/* SECTION 5: Make hyperlinks more usable.
+	   Ensure links are underlined, and consider appending
+	   the URL to the end of the link for usability. */
+	a:link,
+	a:visited {
+		color: #000 !important;
+		font-weight: bold;
+		text-decoration: underline;
+	}
+	/*
+	.reveal a:link:after,
+	.reveal a:visited:after {
+		content: " (" attr(href) ") ";
+		color: #222 !important;
+		font-size: 90%;
+	}
+	*/
+
+
+	/* SECTION 6: more reveal.js specific additions by @skypanther */
+	ul, ol, div, p {
+		visibility: visible;
+		position: static;
+		width: auto;
+		height: auto;
+		display: block;
+		overflow: visible;
+		margin: 0;
+		text-align: left !important;
+	}
+	.reveal pre,
+	.reveal table {
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.reveal pre code {
+		padding: 20px;
+		border: 1px solid #ddd;
+	}
+	.reveal blockquote {
+		margin: 20px 0;
+	}
+	.reveal .slides {
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 0 !important;
+		zoom: 1 !important;
+
+		overflow: visible !important;
+		display: block !important;
+
+		text-align: left !important;
+		-webkit-perspective: none;
+		   -moz-perspective: none;
+		    -ms-perspective: none;
+		        perspective: none;
+
+		-webkit-perspective-origin: 50% 50%;
+		   -moz-perspective-origin: 50% 50%;
+		    -ms-perspective-origin: 50% 50%;
+		        perspective-origin: 50% 50%;
+	}
+	.reveal .slides section {
+		visibility: visible !important;
+		position: static !important;
+		width: auto !important;
+		height: auto !important;
+		display: block !important;
+		overflow: visible !important;
+
+		left: 0 !important;
+		top: 0 !important;
+		margin-left: 0 !important;
+		margin-top: 0 !important;
+		padding: 60px 20px !important;
+		z-index: auto !important;
+
+		opacity: 1 !important;
+
+		page-break-after: always !important;
+
+		-webkit-transform-style: flat !important;
+		   -moz-transform-style: flat !important;
+		    -ms-transform-style: flat !important;
+		        transform-style: flat !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+
+		-webkit-transition: none !important;
+		   -moz-transition: none !important;
+		    -ms-transition: none !important;
+		        transition: none !important;
+	}
+	.reveal .slides section.stack {
+		padding: 0 !important;
+	}
+	.reveal section:last-of-type {
+		page-break-after: avoid !important;
+	}
+	.reveal section .fragment {
+		opacity: 1 !important;
+		visibility: visible !important;
+
+		-webkit-transform: none !important;
+		   -moz-transform: none !important;
+		    -ms-transform: none !important;
+		        transform: none !important;
+	}
+	.reveal section img {
+		display: block;
+		margin: 15px 0px;
+		background: rgba(255,255,255,1);
+		border: 1px solid #666;
+		box-shadow: none;
+	}
+
+	.reveal section small {
+		font-size: 0.8em;
+	}
+
+}  
+</script>
+
+
+<script id="pdf-css" type="application/dynamic-css">
+    
+/**
+ * This stylesheet is used to print reveal.js
+ * presentations to PDF.
+ *
+ * https://github.com/hakimel/reveal.js#pdf-export
+ */
+
+* {
+	-webkit-print-color-adjust: exact;
+}
+
+body {
+	margin: 0 auto !important;
+	border: 0;
+	padding: 0;
+	float: none !important;
+	overflow: visible;
+}
+
+html {
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+}
+
+/* Remove any elements not needed in print. */
+.nestedarrow,
+.reveal .controls,
+.reveal .progress,
+.reveal .playback,
+.reveal.overview,
+.fork-reveal,
+.share-reveal,
+.state-background {
+	display: none !important;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	text-shadow: 0 0 0 #000 !important;
+}
+
+.reveal pre code {
+	overflow: hidden !important;
+	font-family: Courier, 'Courier New', monospace !important;
+}
+
+ul, ol, div, p {
+	visibility: visible;
+	position: static;
+	width: auto;
+	height: auto;
+	display: block;
+	overflow: visible;
+	margin: auto;
+}
+.reveal {
+	width: auto !important;
+	height: auto !important;
+	overflow: hidden !important;
+}
+.reveal .slides {
+	position: static;
+	width: 100%;
+	height: auto;
+
+	left: auto;
+	top: auto;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	overflow: visible;
+	display: block;
+
+	-webkit-perspective: none;
+	   -moz-perspective: none;
+	    -ms-perspective: none;
+	        perspective: none;
+
+	-webkit-perspective-origin: 50% 50%; /* there isn't a none/auto value but 50-50 is the default */
+	   -moz-perspective-origin: 50% 50%;
+	    -ms-perspective-origin: 50% 50%;
+	        perspective-origin: 50% 50%;
+}
+
+.reveal .slides section {
+	page-break-after: always !important;
+
+	visibility: visible !important;
+	position: relative !important;
+	display: block !important;
+	position: relative !important;
+
+	margin: 0 !important;
+	padding: 0 !important;
+	box-sizing: border-box !important;
+	min-height: 1px;
+
+	opacity: 1 !important;
+
+	-webkit-transform-style: flat !important;
+	   -moz-transform-style: flat !important;
+	    -ms-transform-style: flat !important;
+	        transform-style: flat !important;
+
+	-webkit-transform: none !important;
+	   -moz-transform: none !important;
+	    -ms-transform: none !important;
+	        transform: none !important;
+}
+
+.reveal section.stack {
+	margin: 0 !important;
+	padding: 0 !important;
+	page-break-after: avoid !important;
+	height: auto !important;
+	min-height: auto !important;
+}
+
+.reveal img {
+	box-shadow: none;
+}
+
+.reveal .roll {
+	overflow: visible;
+	line-height: 1em;
+}
+
+/* Slide backgrounds are placed inside of their slide when exporting to PDF */
+.reveal section .slide-background {
+	display: block !important;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	z-index: -1;
+}
+
+/* All elements should be above the slide-background */
+.reveal section>* {
+	position: relative;
+	z-index: 1;
+}
+
+/* Display slide speaker notes when 'showNotes' is enabled */
+.reveal .speaker-notes-pdf {
+	display: block;
+	width: 100%;
+	max-height: none;
+	left: auto;
+	top: auto;
+	z-index: 100;
+}
+
+/* Display slide numbers when 'slideNumber' is enabled */
+.reveal .slide-number-pdf {
+	display: block;
+	position: absolute;
+	font-size: 14px;
+}
+
+</script>
+
+
+<script>
+var style = document.createElement( 'style' );
+style.type = 'text/css';
+var style_script_id = window.location.search.match( /print-pdf/gi ) ? 'pdf-css' : 'paper-css';
+var style_script = document.getElementById(style_script_id).text;
+style.innerHTML = style_script;
+document.getElementsByTagName('head')[0].appendChild(style);
+</script>
+
+</head>
+<body>
+  <div class="reveal">
+    <div class="slides">
+
+<section>
+    <h1 class="title">Tidying Up With <del>Marie Kondo</del> <code>purrr</code> et al.</h1>
+  <h1 class="subtitle"><small>or: How I Learned to Stop Worrying and Love the Tidyverse</small></h1>
+    <h2 class="author">Daniel Bride</h2>
+</section>
+
+<section id="tidyverse-pt.-ii" class="slide level1">
+<h1>Tidyverse Pt. II</h1>
+<ul>
+<li>Part I covers many cool packages
+<ul>
+<li><a href="https://github.com/slc-rug/tidyverse-explore" class="uri">https://github.com/slc-rug/tidyverse-explore</a></li>
+</ul></li>
+<li>I’ll only cover one cool package: <code>purrr</code></li>
+<li>That’s okay.</li>
+</ul>
+<aside class="notes">
+<ul>
+<li>Part I covers many cool packages</li>
+<li>We’re only covering one cool package today. That’s okay.</li>
+<li>I’ll use Tidyverse tools along the way.</li>
+</ul>
+</aside>
+</section>
+<section id="roadmap" class="slide level1">
+<h1>Roadmap</h1>
+<ul>
+<li>Tidyverse philosophy lesson</li>
+<li>Apply functions with <code>map()</code>, <code>modify()</code></li>
+<li>Modify functions with <code>safely()</code>, <code>quietly()</code>, <code>possibly()</code></li>
+<li>Reduce vectors with <code>reduce()</code>, <code>accumulate()</code></li>
+</ul>
+<aside class="notes">
+<ul>
+<li>At the risk of seeming uncool to advanced users, I’ll simplify to a beginner level</li>
+<li>But first, an interesting diversion.</li>
+</ul>
+</aside>
+</section>
+<section id="interesting-diversion" class="slide level1">
+<h1>Interesting Diversion</h1>
+<h2>
+An Impassioned Defense
+</h2>
+<p><img data-src="slc-rug-presentation_files/figure-revealjs/imgs-1.png" /></p>
+<aside class="notes">
+<ul>
+<li>Bryan Garner sticks up for what’s right.</li>
+<li>Of all the people being outraged about all the things, he chose this.</li>
+<li>¿Why does he care so much?</li>
+</ul>
+</aside>
+</section>
+<section id="interesting-diversion-1" class="slide level1">
+<h1>Interesting Diversion</h1>
+<h2>
+Garner’s other work
+</h2>
+<p><img data-src="slc-rug-presentation_files/figure-revealjs/imgs-3.png" /></p>
+<aside class="notes">
+<ul>
+<li>Garner’s work is at the heart of a heated debate you probably didn’t know existed:
+<ul>
+<li>Descriptivism vs. Prescriptivism</li>
+</ul></li>
+</ul>
+</aside>
+</section>
+<section id="interesting-diversion-2" class="slide level1">
+<h1>Interesting(?) Diversion</h1>
+<h2>
+Descriptive vs. Prescriptive Grammar
+</h2>
+<div style="float: left; width: 50%;">
+<h3>
+Descriptive:
+</h3>
+<ul>
+<li><span class="fragment highlight-current-blue" data-fragment-index="1">Rules derived from usage</span></li>
+<li><span class="fragment highlight-current-blue" data-fragment-index="2">All usage equally valid</span></li>
+<li><span class="fragment highlight-current-blue" data-fragment-index="3">Comprehensive</span></li>
+</ul>
+</div>
+<div style="float: right; width: 50%;">
+<h3>
+Prescriptive:
+</h3>
+<ul>
+<li><span class="fragment highlight-current-blue" data-fragment-index="1">Rules inform usage</span></li>
+<li><span class="fragment highlight-current-blue" data-fragment-index="2">One correct/best usage</span></li>
+<li><span class="fragment highlight-current-blue" data-fragment-index="3">Intentionally constrained</span></li>
+</ul>
+</div>
+<aside class="notes">
+<ul>
+<li>Stay with me.</li>
+</ul>
+</aside>
+</section>
+<section id="tidyverse-philosophy" class="slide level1">
+<h1>Tidyverse Philosophy</h1>
+<h2>
+Why Are We Talking About Grammar?
+</h2>
+<ul>
+<li>Prescriptivism is <span class="fragment highlight-current-blue">good for beginners</span></li>
+<li>Prescriptivism can <span class="fragment highlight-current-blue">outsource cognitive burden</span></li>
+<li>Prescriptivism can <span class="fragment highlight-current-blue">train a way of thinking</span></li>
+<li><span class="fragment highlight-current-red">The Tidyverse is prescriptive</span></li>
+</ul>
+<aside class="notes">
+<ul>
+<li><strong>Good for beginners</strong>: start with mimicry, diverge thoughtfully</li>
+<li><strong>Cognitive burden</strong>: numerous alternatives sap brainpower
+<ul>
+<li>Ever dealt with a novel of a restaurant menu?</li>
+</ul></li>
+<li>Language drives thinking</li>
+</ul>
+</aside>
+</section>
+<section id="tidyverse-philosophy-1" class="slide level1">
+<h1>Tidyverse Philosophy</h1>
+<h2>
+Tidy Tendencies
+</h2>
+<ul>
+<li><span style="color: lightgray">Reuse existing data structures</span></li>
+<li>Compose simple functions with the pipe (<code>%&gt;%</code>)</li>
+<li>Embrace functional (vs. imperative) programming</li>
+<li>Design for humans</li>
+</ul>
+<p><span style="float: right; font-size: small; padding: 50px 0;">Reference: <a href="https://tidyverse.tidyverse.org/articles/manifesto.html" class="uri">https://tidyverse.tidyverse.org/articles/manifesto.html</a></span></p>
+<aside class="notes">
+<ul>
+<li>Pipeable</li>
+<li>Functional</li>
+<li>Design</li>
+</ul>
+</aside>
+</section>
+<section id="learn-to-love-the-tidyverse" class="slide level1">
+<h1>Learn to Love the Tidyverse</h1>
+<ol type="1">
+<li>Try it</li>
+<li>Ask why</li>
+<li>Branch out confidently</li>
+</ol>
+<aside class="notes">
+<ul>
+<li>Rules help master spoken language</li>
+<li>Rules help you master the R language</li>
+<li>Whether your first encounter with code</li>
+<li>Or you’re bewildered at its quirky differences from other langs</li>
+</ul>
+</aside>
+</section>
+<section id="the-purrr-package-finally" class="slide level1">
+<h1>The <code>purrr</code> Package (Finally!)</h1>
+<ul>
+<li>A “functional programming toolkit”</li>
+<li>Built for complex, iterative tasks</li>
+<li><code>install.packages(&quot;tidyverse&quot;)</code></li>
+</ul>
+<aside class="notes">
+<ul>
+<li>Built to accomplish iterative tasks</li>
+<li>Designed to help you think through iterative tasks</li>
+</ul>
+</aside>
+</section>
+<section id="apply-functions" class="slide level1">
+<h1>Apply Functions</h1>
+<h2>
+<code>map()</code>
+</h2>
+<ul>
+<li>Do something to/with each element of a list or vector</li>
+<li>Return a list* of results</li>
+<li><div class="fragment fade-up">
+*Hold your horses. There are ways to return other types.
+</div></li>
+</ul>
+</section>
+<section id="apply-functions-map" class="slide level1">
+<h1>Apply Functions: <code>map()</code></h1>
+<h2>
+<code>map(</code><span class="fragment highlight-red" data-fragment-index="1"><code>.x</code></span><code>,</code><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span><code>,</code><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span><code>)</code>
+</h2>
+<h2>
+<span class="fragment highlight-blue" data-fragment-index="2">Do something</span> to/with each element of <span class="fragment highlight-red" data-fragment-index="1">a list or vector</span>
+</h2>
+<ul>
+<li><span class="fragment highlight-red" data-fragment-index="1"><code>.x</code></span>: A vector or list</li>
+<li><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span>:
+<ul>
+<li>A function name or formula to apply a function iteratively, or</li>
+<li>A vector or list to specify elements to extract from <code>.x</code></li>
+</ul></li>
+<li><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span>: additional arguments passed to <code>.f</code></li>
+</ul>
+</section>
+<section id="map.x-.f-..." class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Visually:
+</h2>
+<p><img data-src="slc-rug-presentation_files/figure-revealjs/imgs-5.png" /></p>
+<p><span style="float: right; font-size: small; padding: 50px 0;">Reference: <a href="https://adv-r.hadley.nz/functionals.html" class="uri">https://adv-r.hadley.nz/functionals.html</a></span></p>
+</section>
+<section id="map.x-.f-...-1" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Three Ways to Specify Functions
+</h2>
+<ul>
+<li><code>purrr</code>-style anonymous function shortcut (<code>~ mean(.x)</code>)</li>
+<li>Named function (<code>.f = mean</code>)</li>
+<li>Full function definition (<code>.f = function(x) mean(x)</code>)</li>
+</ul>
+</section>
+<section id="map.x-.f-...-2" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Let’s make some unique example data
+</h2>
+<ul>
+<li>Using <a href="https://github.com/hadley/babynames"><code>babynames</code></a> and <a href="https://github.com/trinker/lexicon"><code>lexicon</code></a></li>
+<li>Unpopular baby names, popular sayings, inscrutable internet slang</li>
+</ul>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1">baby_pool &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="st">  </span>babynames<span class="op">::</span>babynames <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="st">  </span><span class="kw">group_by</span>(sex, <span class="dt">first_letter =</span> <span class="kw">str_sub</span>(name, 1L, 1L)) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb1-4" data-line-number="4"><span class="st">  </span><span class="kw">top_n</span>(<span class="op">-</span><span class="dv">10</span>, prop) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb1-5" data-line-number="5"><span class="st">  </span><span class="kw">pull</span>(name) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb1-6" data-line-number="6"><span class="st">  </span><span class="kw">sort</span>()</a>
+<a class="sourceLine" id="cb1-7" data-line-number="7"></a>
+<a class="sourceLine" id="cb1-8" data-line-number="8">cliches &lt;-<span class="st"> </span>lexicon<span class="op">::</span>cliches</a>
+<a class="sourceLine" id="cb1-9" data-line-number="9"></a>
+<a class="sourceLine" id="cb1-10" data-line-number="10">web_slang &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb1-11" data-line-number="11"><span class="st">  </span>lexicon<span class="op">::</span>hash_internet_slang</a></code></pre></div>
+<aside class="notes">
+<ul>
+<li>Mention <code>set_names()</code> from <code>purrr</code></li>
+<li>And <code>deframe()</code> from <code>tibble()</code></li>
+</ul>
+</aside>
+</section>
+<section id="map.x-.f-...-3" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Write function with <code>purrr</code> shortcut
+</h2>
+<h3>
+Organize baby names by first letter
+</h3>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1">chosen_babies &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb2-2" data-line-number="2"><span class="st">  </span><span class="kw">map</span>(<span class="dt">.x =</span> LETTERS,</a>
+<a class="sourceLine" id="cb2-3" data-line-number="3">      <span class="dt">.f =</span> <span class="op">~</span><span class="st"> </span>{<span class="kw">str_subset</span>(baby_pool, <span class="kw">paste0</span>(<span class="st">&quot;^&quot;</span>, .x))}) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb2-4" data-line-number="4"><span class="st">  </span><span class="kw">set_names</span>(LETTERS)</a></code></pre></div>
+<ul>
+<li><code>~</code> is shorthand for function(x) { }</li>
+<li>When specifying this way, use <code>.</code> or <code>.x</code> to refer to data</li>
+</ul>
+<aside class="notes">
+<ul>
+<li>Mention <code>set_names()</code> from <code>purrr</code></li>
+</ul>
+</aside>
+</section>
+<section id="map.x-.f-...-4" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Write named function
+</h2>
+<h3>
+Output first three names for each letter
+</h3>
+<p><small>- Notice we’re using <code>...</code> to pass addtl argument (<code>3</code>) to <code>head()</code></small></p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" data-line-number="1">chosen_babies <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">map</span>(head, <span class="dv">3</span>)</a></code></pre></div>
+<pre><code>## $A
+## [1] &quot;Aaban&quot; &quot;Aahna&quot; &quot;Aajah&quot;
+## 
+## $B
+## [1] &quot;Baani&quot;   &quot;Bacilio&quot; &quot;Badr&quot;   
+## 
+## $C
+## [1] &quot;Cabella&quot; &quot;Cabrina&quot; &quot;Cace&quot;   
+## 
+## $D
+## [1] &quot;Dacorian&quot; &quot;Daegan&quot;   &quot;Daemion&quot; 
+## 
+## $E
+## [1] &quot;Eadie&quot;   &quot;Eanna&quot;   &quot;Earlene&quot;
+## 
+## $F
+## [1] &quot;Fabrisio&quot; &quot;Faelynn&quot;  &quot;Fahd&quot;    
+## 
+## $G
+## [1] &quot;Gabbi&quot;     &quot;Gabreil&quot;   &quot;Gabriella&quot;
+## 
+## $H
+## [1] &quot;Haadiyah&quot; &quot;Haben&quot;    &quot;Haby&quot;    
+## 
+## $I
+## [1] &quot;Ia&quot;     &quot;Iago&quot;   &quot;Iayana&quot;
+## 
+## $J
+## [1] &quot;Ja&quot;        &quot;Jaazaniah&quot; &quot;Jabaree&quot;  
+## 
+## $K
+## [1] &quot;Kaajal&quot; &quot;Kabeer&quot; &quot;Kabree&quot;
+## 
+## $L
+## [1] &quot;La&quot;      &quot;Laaibah&quot; &quot;Lacey&quot;  
+## 
+## $M
+## [1] &quot;Maahir&quot;  &quot;Mabelin&quot; &quot;Macade&quot; 
+## 
+## $N
+## [1] &quot;Naadirah&quot; &quot;Naaliyah&quot; &quot;Nabria&quot;  
+## 
+## $O
+## [1] &quot;Oakleigh&quot; &quot;Obdulio&quot;  &quot;Obediah&quot; 
+## 
+## $P
+## [1] &quot;Paiden&quot;    &quot;Paigelynn&quot; &quot;Paiten&quot;   
+## 
+## $Q
+## [1] &quot;Qualen&quot;  &quot;Qualon&quot;  &quot;Quamari&quot;
+## 
+## $R
+## [1] &quot;Rabih&quot;    &quot;Raciel&quot;   &quot;Radarius&quot;
+## 
+## $S
+## [1] &quot;Saabir&quot; &quot;Saahas&quot; &quot;Saaid&quot; 
+## 
+## $T
+## [1] &quot;Taci&quot;    &quot;Tacoma&quot;  &quot;Tadashi&quot;
+## 
+## $U
+## [1] &quot;Ualani&quot; &quot;Uciel&quot;  &quot;Udbhav&quot;
+## 
+## $V
+## [1] &quot;Vaanya&quot; &quot;Vaeda&quot;  &quot;Vahn&quot;  
+## 
+## $W
+## [1] &quot;Wafaa&quot;    &quot;Wakana&quot;   &quot;Walberto&quot;
+## 
+## $X
+## [1] &quot;Xaeden&quot; &quot;Xai&quot;    &quot;Xamir&quot; 
+## 
+## $Y
+## [1] &quot;Yaasir&quot;  &quot;Yacine&quot;  &quot;Yadelis&quot;
+## 
+## $Z
+## [1] &quot;Zaakir&quot; &quot;Zaaron&quot; &quot;Zaavan&quot;</code></pre>
+</section>
+<section id="map.x-.f-...-5" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Write full function definition
+</h2>
+<h3>
+Match cliches to first letter
+</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb5-1" data-line-number="1">alphabetical_cliches &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb5-2" data-line-number="2"><span class="st">  </span>LETTERS <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-3" data-line-number="3"><span class="st">  </span><span class="kw">map</span>(<span class="cf">function</span>(ltr) {</a>
+<a class="sourceLine" id="cb5-4" data-line-number="4">    cliches_sub &lt;-<span class="st"> </span><span class="kw">str_subset</span>(cliches, </a>
+<a class="sourceLine" id="cb5-5" data-line-number="5">                              <span class="kw">regex</span>(<span class="kw">paste0</span>(<span class="st">&quot;^&quot;</span>, ltr), <span class="dt">ignore_case =</span> <span class="ot">TRUE</span>))</a>
+<a class="sourceLine" id="cb5-6" data-line-number="6">    <span class="cf">if</span>(<span class="kw">length</span>(cliches_sub)) cliches_sub</a>
+<a class="sourceLine" id="cb5-7" data-line-number="7">    <span class="cf">else</span> <span class="st">&quot;you&#39;re indescribable&quot;</span>}) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb5-8" data-line-number="8"><span class="st">  </span><span class="kw">set_names</span>(LETTERS)</a></code></pre></div>
+<aside class="notes">
+<ul>
+<li>Probably a case where you’d want to define the function elsewhere, call it within map</li>
+</ul>
+</aside>
+</section>
+<section id="pardon-the-interruption" class="slide level1">
+<h1>…Pardon the Interruption…</h1>
+<p>We’ll Use This Later</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1">everything &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dt">babies =</span> chosen_babies, </a>
+<a class="sourceLine" id="cb6-2" data-line-number="2">                   <span class="dt">cliches =</span> alphabetical_cliches, </a>
+<a class="sourceLine" id="cb6-3" data-line-number="3">                   <span class="dt">web_slang =</span> <span class="kw">deframe</span>(web_slang)[<span class="dv">1</span><span class="op">:</span><span class="dv">26</span>])</a></code></pre></div>
+</section>
+<section id="map.x-.f-...-6" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Use <code>map()</code> to extract elements
+</h2>
+<ul>
+<li>An integer n extracts nth item from each element of the list</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb7-1" data-line-number="1">alphabetical_cliches <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">map</span>(<span class="dv">15</span>, <span class="dt">.default =</span> <span class="st">&quot;NOTHIN&#39; TO SEE HERE!&quot;</span>)</a></code></pre></div>
+<pre><code>## $A
+## [1] &quot;all fun and games&quot;
+## 
+## $B
+## [1] &quot;beat a dead horse&quot;
+## 
+## $C
+## [1] &quot;clear as a bell&quot;
+## 
+## $D
+## [1] &quot;don\\&#39;t step on anyone\\&#39;s toes&quot;
+## 
+## $E
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $F
+## [1] &quot;fit as a fiddle&quot;
+## 
+## $G
+## [1] &quot;go him one better&quot;
+## 
+## $H
+## [1] &quot;heavy as lead&quot;
+## 
+## $I
+## [1] &quot;in your dreams&quot;
+## 
+## $J
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $K
+## [1] &quot;knock on wood&quot;
+## 
+## $L
+## [1] &quot;let your hair down&quot;
+## 
+## $M
+## [1] &quot;money to burn&quot;
+## 
+## $N
+## [1] &quot;no stone unturned&quot;
+## 
+## $O
+## [1] &quot;on the spot&quot;
+## 
+## $P
+## [1] &quot;pin your hopes on&quot;
+## 
+## $Q
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $R
+## [1] &quot;road to hell is paved with good intentions&quot;
+## 
+## $S
+## [1] &quot;shoot for the moon&quot;
+## 
+## $T
+## [1] &quot;thick as thieves&quot;
+## 
+## $U
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $V
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $W
+## [1] &quot;when it rains, it pours&quot;
+## 
+## $X
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $Y
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;
+## 
+## $Z
+## [1] &quot;NOTHIN&#39; TO SEE HERE!&quot;</code></pre>
+<aside class="notes">
+<ul>
+<li>If you don’t specify .default, you get an error if that index doesn’t exist</li>
+</ul>
+</aside>
+</section>
+<section id="map.x-.f-...-7" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Use <code>map()</code> to extract elements
+</h2>
+<ul>
+<li>For named vectors/lists, a string extracts thus-named items from each</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb9-1" data-line-number="1">everything <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb9-2" data-line-number="2"><span class="st">  </span><span class="kw">map</span>(<span class="st">&quot;Q&quot;</span>, <span class="dt">.default =</span> <span class="st">&quot;---No match---&quot;</span>)</a></code></pre></div>
+<pre><code>## $babies
+##  [1] &quot;Qualen&quot;      &quot;Qualon&quot;      &quot;Quamari&quot;     &quot;Quameir&quot;     &quot;Quanisha&quot;   
+##  [6] &quot;Quanta&quot;      &quot;Quantasia&quot;   &quot;Quantay&quot;     &quot;Quashaun&quot;    &quot;Quasim&quot;     
+## [11] &quot;Quayvon&quot;     &quot;Quenia&quot;      &quot;Quentasia&quot;   &quot;Quindarrius&quot; &quot;Quiniya&quot;    
+## [16] &quot;Quinlen&quot;     &quot;Quinlynn&quot;    &quot;Quinnlan&quot;    &quot;Quinnlyn&quot;    &quot;Quinteria&quot;  
+## [21] &quot;Quintus&quot;     &quot;Quinya&quot;      &quot;Quion&quot;       &quot;Quynn&quot;      
+## 
+## $cliches
+## [1] &quot;quick as a bunny&quot;    &quot;quick as a lick&quot;     &quot;quick as a wink&quot;    
+## [4] &quot;quick as lightning&quot;  &quot;quiet as a dormouse&quot;
+## 
+## $web_slang
+## [1] &quot;---No match---&quot;</code></pre>
+</section>
+<section id="map.x-.f-...-8" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Use <code>map()</code> to extract elements
+</h2>
+<ul>
+<li>Use multiple values to index multiple levels</li>
+<li>Allowing you to access deeply nested values</li>
+<li>Combine characters and integers in a list</li>
+</ul>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb11-1" data-line-number="1">everything <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb11-2" data-line-number="2"><span class="st">  </span><span class="kw">map</span>(<span class="kw">list</span>(<span class="st">&quot;Q&quot;</span>, <span class="dv">3</span>), <span class="dt">.default =</span> <span class="st">&quot;***I got nothin&#39;***&quot;</span>)</a></code></pre></div>
+<pre><code>## $babies
+## [1] &quot;Quamari&quot;
+## 
+## $cliches
+## [1] &quot;quick as a wink&quot;
+## 
+## $web_slang
+## [1] &quot;***I got nothin&#39;***&quot;</code></pre>
+</section>
+<section id="map.x-.f-...-9" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Returning other types
+</h2>
+<h3 style="align: left">
+Obligatory <code>mtcars</code> example. Ugly version:
+</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb13-1" data-line-number="1"><span class="kw">map</span>(mtcars, mean)</a></code></pre></div>
+<pre><code>## $mpg
+## [1] 20.09062
+## 
+## $cyl
+## [1] 6.1875
+## 
+## $disp
+## [1] 230.7219
+## 
+## $hp
+## [1] 146.6875
+## 
+## $drat
+## [1] 3.596563
+## 
+## $wt
+## [1] 3.21725
+## 
+## $qsec
+## [1] 17.84875
+## 
+## $vs
+## [1] 0.4375
+## 
+## $am
+## [1] 0.40625
+## 
+## $gear
+## [1] 3.6875
+## 
+## $carb
+## [1] 2.8125</code></pre>
+</section>
+<section id="map.x-.f-...-10" class="slide level1">
+<h1><code>map(.x, .f, ...)</code></h1>
+<h2>
+Returning other types
+</h2>
+<ul>
+<li>Just add a suffix: <code>map_*()</code></li>
+<li>E.g., <code>map_int()</code>, <code>map_lgl()</code>, …
+<h3>
+Better version:
+</h3></li>
+</ul>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb15-1" data-line-number="1"><span class="kw">map_dbl</span>(mtcars, mean)</a></code></pre></div>
+<pre><code>##        mpg        cyl       disp         hp       drat         wt 
+##  20.090625   6.187500 230.721875 146.687500   3.596563   3.217250 
+##       qsec         vs         am       gear       carb 
+##  17.848750   0.437500   0.406250   3.687500   2.812500</code></pre>
+<ul>
+<li>Names are conveniently preserved</li>
+</ul>
+</section>
+<section id="apply-functions-across-two-listsvectors" class="slide level1">
+<h1>Apply Functions Across Two Lists/Vectors</h1>
+<h2>
+<code>map2()</code>
+</h2>
+<ul>
+<li>Do something with each element of two lists or vectors</li>
+<li>Return a list* of results</li>
+<li><div class="fragment fade-up">
+*Or character vector (<code>map2_chr()</code>), or double vector (<code>map2_dbl()</code>), or…
+</div></li>
+</ul>
+</section>
+<section id="apply-functions-across-two-listsvectors-1" class="slide level1">
+<h1>Apply Functions Across Two Lists/Vectors</h1>
+<h2>
+<code>map(</code><span class="fragment highlight-red" data-fragment-index="1"><code>.x</code></span><code>,</code><span class="fragment highlight-red" data-fragment-index="1"><code>.y</code></span><code>,</code><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span><code>,</code><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span><code>)</code>
+</h2>
+<h2>
+<span class="fragment highlight-blue" data-fragment-index="2">Do something</span> to/with each element of <span class="fragment highlight-red" data-fragment-index="1">two lists/vectors</span>
+</h2>
+<ul>
+<li><span class="fragment highlight-red" data-fragment-index="1"><code>.x</code></span>: A vector or list</li>
+<li><span class="fragment highlight-red" data-fragment-index="1"><code>.y</code></span>: Another vector or list (length 1 or same as .x)</li>
+<li><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span>: A function name or formula to apply a function iteratively</li>
+<li><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span>: additional arguments passed to <code>.f</code></li>
+</ul>
+<aside class="notes">
+<ul>
+<li>The function needs to accept two arguments, or else why?</li>
+</ul>
+</aside>
+</section>
+<section id="map2.x-.y-.f-..." class="slide level1">
+<h1><code>map2(.x, .y, .f, ...)</code></h1>
+<h3>
+Celebrate the babies of the alphabet with alliterative cliches
+</h3>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb17-1" data-line-number="1"><span class="kw">map2_chr</span>(<span class="dt">.x =</span> chosen_babies, </a>
+<a class="sourceLine" id="cb17-2" data-line-number="2">         <span class="dt">.y =</span> alphabetical_cliches,</a>
+<a class="sourceLine" id="cb17-3" data-line-number="3">         <span class="op">~</span><span class="st"> </span><span class="kw">paste0</span>(<span class="kw">str_to_sentence</span>(<span class="kw">sample</span>(.y, <span class="dv">1</span>, <span class="ot">TRUE</span>)), <span class="st">&quot;, &quot;</span>,</a>
+<a class="sourceLine" id="cb17-4" data-line-number="4">                  <span class="kw">str_to_sentence</span>(<span class="kw">sample</span>(.x, <span class="dv">1</span>)), <span class="st">&quot;!&quot;</span>))</a></code></pre></div>
+<pre><code>##                                             A 
+##                     &quot;A loose cannon, Adayla!&quot; 
+##                                             B 
+## &quot;Bitten off more than he can chew, Baeleigh!&quot; 
+##                                             C 
+##                &quot;Cool as a cucumber, Cabella!&quot; 
+##                                             D 
+##                &quot;Dark before the dawn, Drean!&quot; 
+##                                             E 
+##                      &quot;Eleventh hour, Eilene!&quot; 
+##                                             F 
+##    &quot;For all intents and purposes, Folashade!&quot; 
+##                                             G 
+##                &quot;Go him one better, Galileah!&quot; 
+##                                             H 
+##                       &quot;High and dry, Haleia!&quot; 
+##                                             I 
+##                    &quot;In a nutshell, Itayetzi!&quot; 
+##                                             J 
+##                 &quot;Jack of all trades, Jakhai!&quot; 
+##                                             K 
+##                 &quot;Kick your feet up, Kaylian!&quot; 
+##                                             L 
+##      &quot;Like there\\&#39;s no tomorrow, Laderrion!&quot; 
+##                                             M 
+##  &quot;Make the best of a bad situation, Marrick!&quot; 
+##                                             N 
+##                  &quot;No guts, no glory, Nyazia!&quot; 
+##                                             O 
+##                       &quot;One red cent, Otilio!&quot; 
+##                                             P 
+##                       &quot;Pain in the, Praylee!&quot; 
+##                                             Q 
+##                  &quot;Quick as a lick, Quinnlan!&quot; 
+##                                             R 
+##                 &quot;Running in circles, Rakell!&quot; 
+##                                             S 
+##                &quot;Shoot for the moon, Slayter!&quot; 
+##                                             T 
+##                    &quot;Tried and true, Taleigh!&quot; 
+##                                             U 
+##                   &quot;Under the same roof, Umu!&quot; 
+##                                             V 
+##                    &quot;Vested interest, Vontae!&quot; 
+##                                             W 
+##                          &quot;Whole hog, Wilson!&quot; 
+##                                             X 
+##               &quot;You&#39;re indescribable, Xander!&quot; 
+##                                             Y 
+##                  &quot;Young and vibrant, Yashar!&quot; 
+##                                             Z 
+##                 &quot;You&#39;re indescribable, Zeno!&quot;</code></pre>
+</section>
+<section id="so-map3" class="slide level1">
+<h1>So, <code>map3()</code>?</h1>
+<h1>
+Of course not!
+</h1>
+</section>
+<section id="apply-functions-with-many-arguments" class="slide level1">
+<h1>Apply Functions With Many Arguments</h1>
+<h2>
+<code>pmap()</code>
+</h2>
+<ul>
+<li>Do something with each element of many lists/vectors</li>
+<li>Return a list or typed vector of results</li>
+</ul>
+</section>
+<section id="apply-functions-with-many-arguments-1" class="slide level1">
+<h1>Apply Functions With Many Arguments</h1>
+<h2>
+<code>pmap(</code><span class="fragment highlight-red" data-fragment-index="1"><code>.l</code></span><code>,</code><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span><code>,</code><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span><code>)</code>
+</h2>
+<h2>
+<span class="fragment highlight-blue" data-fragment-index="2">Do something</span> to/with each element of <span class="fragment highlight-red" data-fragment-index="1">many lists/vectors</span>
+</h2>
+<ul>
+<li><span class="fragment highlight-red" data-fragment-index="1"><code>.l</code></span>: A <strong>list</strong> of vectors/lists to supply as arguments to a function
+<ul>
+<li>All elements generally same length or length 1</li>
+</ul></li>
+<li><span class="fragment highlight-blue" data-fragment-index="2"><code>.f</code></span>: A function name or formula to apply a function iteratively</li>
+<li><span class="fragment highlight-green" data-fragment-index="3"><code>...</code></span>: additional arguments passed to <code>.f</code></li>
+</ul>
+</section>
+<section id="pmap.l-.f-..." class="slide level1">
+<h1><code>pmap(.l, .f, ...)</code></h1>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb19-1" data-line-number="1"><span class="kw">pmap</span>(<span class="dt">.l =</span> everything, <span class="dt">.f =</span> <span class="cf">function</span>(babies, cliches, web_slang, ...) {</a>
+<a class="sourceLine" id="cb19-2" data-line-number="2">  <span class="kw">paste0</span>(<span class="kw">str_to_sentence</span>(web_slang), </a>
+<a class="sourceLine" id="cb19-3" data-line-number="3">                         <span class="st">&quot;, &quot;</span>,</a>
+<a class="sourceLine" id="cb19-4" data-line-number="4">                         <span class="kw">str_to_sentence</span>(<span class="kw">sample</span>(babies, <span class="dv">1</span>, <span class="ot">TRUE</span>)), </a>
+<a class="sourceLine" id="cb19-5" data-line-number="5">                         <span class="st">&quot;--&quot;</span>, </a>
+<a class="sourceLine" id="cb19-6" data-line-number="6">                         <span class="kw">sample</span>(cliches, <span class="dv">1</span>),</a>
+<a class="sourceLine" id="cb19-7" data-line-number="7">                         <span class="st">&quot;!&quot;</span>)</a>
+<a class="sourceLine" id="cb19-8" data-line-number="8">  })</a></code></pre></div>
+<pre><code>## $A
+## [1] &quot;Too fast for you, Amarely--add insult to injury!&quot;
+## 
+## $B
+## [1] &quot;Tomorrow, Brolin--ballpark figure!&quot;
+## 
+## $C
+## [1] &quot;Tonight, Chaeden--can\\&#39;t cut the mustard!&quot;
+## 
+## $D
+## [1] &quot;For your eyes only, Daxten--dog and pony show!&quot;
+## 
+## $E
+## [1] &quot;As a matter of fact, Eleah--eat your heart out!&quot;
+## 
+## $F
+## [1] &quot;Acknowledgment, Frank--feather your nest!&quot;
+## 
+## $G
+## [1] &quot;As early as possible, Gaosheng--go the extra mile!&quot;
+## 
+## $H
+## [1] &quot;As far as i know, Hicham--hold your own!&quot;
+## 
+## $I
+## [1] &quot;As far as i recall, Italie--in a nutshell!&quot;
+## 
+## $J
+## [1] &quot;Away from keyboard, Jaspar--jump to conclusions!&quot;
+## 
+## $K
+## [1] &quot;Also known as, Kesly--keep it simple, stupid!&quot;
+## 
+## $L
+## [1] &quot;As late as possible, Laylianna--looks like death warmed over!&quot;
+## 
+## $M
+## [1] &quot;As soon as possible, Martial--make the best of a bad situation!&quot;
+## 
+## $N
+## [1] &quot;Age, sex, location, Nishawn--neat as a pin!&quot;
+## 
+## $O
+## [1] &quot;Because, Oluwadamilola--on the spot!&quot;
+## 
+## $P
+## [1] &quot;Back to keyboard, Pedrojr--plenty of fish in the sea!&quot;
+## 
+## $Q
+## [1] &quot;Blah, blah, blah, Qualon--quick as a lick!&quot;
+## 
+## $R
+## [1] &quot;Before, Rikku--rise and shine!&quot;
+## 
+## $S
+## [1] &quot;Before you know it, Shacoria--spitting image of!&quot;
+## 
+## $T
+## [1] &quot;Be back soon, Traden--the real McCoy!&quot;
+## 
+## $U
+## [1] &quot;Best friends, forever, Usbaldo--up the creek!&quot;
+## 
+## $V
+## [1] &quot;Bye for now, Vasily--vain effort!&quot;
+## 
+## $W
+## [1] &quot;Between me and you, Weslyn--wise as an owl!&quot;
+## 
+## $X
+## [1] &quot;Be right back, Xzaiver--you&#39;re indescribable!&quot;
+## 
+## $Y
+## [1] &quot;Be right there, Youssif--yanking your chain!&quot;
+## 
+## $Z
+## [1] &quot;Be that as it may, Zhana--you&#39;re indescribable!&quot;</code></pre>
+</section>
+<section id="using-map-with-data-frames" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<p><img data-src="slc-rug-presentation_files/figure-revealjs/unnamed-chunk-12-1.png" /></p>
+</section>
+<section id="using-map-with-data-frames-1" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<ul>
+<li>(Fake) data similar to a study on cardiac events and air pollution</li>
+<li>For each event (case) in this set, need to compare PM2.5 (air pollution) on the same day of week in the same month</li>
+</ul>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb21-1" data-line-number="1">ACS_events</a></code></pre></div>
+<pre><code>## # A tibble: 621 x 3
+##       id ref_date   blood_type
+##    &lt;int&gt; &lt;date&gt;     &lt;chr&gt;     
+##  1     1 2015-01-02 B         
+##  2     2 2015-01-03 O         
+##  3     3 2015-01-05 A         
+##  4     4 2015-01-07 A         
+##  5     5 2015-01-13 B         
+##  6     6 2015-01-14 A         
+##  7     7 2015-01-15 A         
+##  8     8 2015-01-16 A         
+##  9     9 2015-01-16 O         
+## 10    10 2015-01-19 O         
+## # ... with 611 more rows</code></pre>
+</section>
+<section id="using-map-with-data-frames-2" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<h2>
+List columns
+</h2>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb23-1" data-line-number="1">nested &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb23-2" data-line-number="2"><span class="st">  </span>ACS_events <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb23-3" data-line-number="3"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">id_date =</span> <span class="kw">map</span>(<span class="dt">.x =</span> ref_date,</a>
+<a class="sourceLine" id="cb23-4" data-line-number="4">                       <span class="dt">.f =</span> <span class="op">~</span><span class="st"> </span>{</a>
+<a class="sourceLine" id="cb23-5" data-line-number="5">                         row_refdate &lt;-<span class="st"> </span>.x</a>
+<a class="sourceLine" id="cb23-6" data-line-number="6">                         month_dates &lt;-<span class="st"> </span><span class="kw">seq</span>(<span class="dt">from =</span> <span class="kw">floor_date</span>(.x, <span class="st">&quot;month&quot;</span>),</a>
+<a class="sourceLine" id="cb23-7" data-line-number="7">                                            <span class="dt">to =</span> <span class="kw">rollback</span>(<span class="kw">ceiling_date</span>(.x, <span class="st">&quot;month&quot;</span>)),</a>
+<a class="sourceLine" id="cb23-8" data-line-number="8">                                            <span class="dt">by =</span> <span class="st">&quot;day&quot;</span>)</a>
+<a class="sourceLine" id="cb23-9" data-line-number="9">                         <span class="kw">keep</span>(month_dates, <span class="op">~</span><span class="st"> </span><span class="kw">wday</span>(.x) <span class="op">==</span><span class="st"> </span><span class="kw">wday</span>(row_refdate))</a>
+<a class="sourceLine" id="cb23-10" data-line-number="10">                       }))</a></code></pre></div>
+</section>
+<section id="using-map-with-data-frames-3" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<h2>
+List columns
+</h2>
+<ul>
+<li>Each cell in <code>id_date</code> contains a list of 4 or 5 dates.</li>
+</ul>
+<pre><code>## # A tibble: 621 x 4
+##       id ref_date   blood_type id_date   
+##    &lt;int&gt; &lt;date&gt;     &lt;chr&gt;      &lt;list&gt;    
+##  1     1 2015-01-02 B          &lt;date [5]&gt;
+##  2     2 2015-01-03 O          &lt;date [5]&gt;
+##  3     3 2015-01-05 A          &lt;date [4]&gt;
+##  4     4 2015-01-07 A          &lt;date [4]&gt;
+##  5     5 2015-01-13 B          &lt;date [4]&gt;
+##  6     6 2015-01-14 A          &lt;date [4]&gt;
+##  7     7 2015-01-15 A          &lt;date [5]&gt;
+##  8     8 2015-01-16 A          &lt;date [5]&gt;
+##  9     9 2015-01-16 O          &lt;date [5]&gt;
+## 10    10 2015-01-19 O          &lt;date [4]&gt;
+## # ... with 611 more rows</code></pre>
+</section>
+<section id="using-map-with-data-frames-4" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<h2>
+Nesting and unnesting
+</h2>
+<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1">unnested &lt;-<span class="st"> </span></a>
+<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="st">  </span>nested <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="st">  </span><span class="kw">unnest</span>(id_date) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb25-4" data-line-number="4"><span class="st">  </span><span class="kw">arrange</span>(id, id_date) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb25-5" data-line-number="5"><span class="st">  </span><span class="kw">mutate</span>(<span class="dt">event =</span> ref_date <span class="op">==</span><span class="st"> </span>id_date)</a>
+<a class="sourceLine" id="cb25-6" data-line-number="6">unnested</a></code></pre></div>
+<pre><code>## # A tibble: 2,725 x 5
+##       id ref_date   blood_type id_date    event
+##    &lt;int&gt; &lt;date&gt;     &lt;chr&gt;      &lt;date&gt;     &lt;lgl&gt;
+##  1     1 2015-01-02 B          2015-01-02 TRUE 
+##  2     1 2015-01-02 B          2015-01-09 FALSE
+##  3     1 2015-01-02 B          2015-01-16 FALSE
+##  4     1 2015-01-02 B          2015-01-23 FALSE
+##  5     1 2015-01-02 B          2015-01-30 FALSE
+##  6     2 2015-01-03 O          2015-01-03 TRUE 
+##  7     2 2015-01-03 O          2015-01-10 FALSE
+##  8     2 2015-01-03 O          2015-01-17 FALSE
+##  9     2 2015-01-03 O          2015-01-24 FALSE
+## 10     2 2015-01-03 O          2015-01-31 FALSE
+## # ... with 2,715 more rows</code></pre>
+</section>
+<section id="using-map-with-data-frames-5" class="slide level1">
+<h1>Using <code>map()</code> With Data Frames</h1>
+<h2>
+(Here’s how it ends):
+</h2>
+<div class="sourceCode" id="cb27"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb27-1" data-line-number="1">unnested <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb27-2" data-line-number="2"><span class="st">  </span><span class="kw">left_join</span>(PM25, <span class="dt">by =</span> <span class="kw">c</span>(<span class="st">&quot;id_date&quot;</span> =<span class="st"> &quot;date&quot;</span>))</a></code></pre></div>
+<pre><code>## # A tibble: 2,725 x 6
+##       id ref_date   blood_type id_date    event  PM25
+##    &lt;int&gt; &lt;date&gt;     &lt;chr&gt;      &lt;date&gt;     &lt;lgl&gt; &lt;dbl&gt;
+##  1     1 2015-01-02 B          2015-01-02 TRUE  11.9 
+##  2     1 2015-01-02 B          2015-01-09 FALSE 11.9 
+##  3     1 2015-01-02 B          2015-01-16 FALSE 15.9 
+##  4     1 2015-01-02 B          2015-01-23 FALSE  4.05
+##  5     1 2015-01-02 B          2015-01-30 FALSE  6.22
+##  6     2 2015-01-03 O          2015-01-03 TRUE   6.06
+##  7     2 2015-01-03 O          2015-01-10 FALSE 15.3 
+##  8     2 2015-01-03 O          2015-01-17 FALSE 15.1 
+##  9     2 2015-01-03 O          2015-01-24 FALSE  8.48
+## 10     2 2015-01-03 O          2015-01-31 FALSE 16.6 
+## # ... with 2,715 more rows</code></pre>
+</section>
+<section id="modify-a-list" class="slide level1">
+<h1>Modify a List</h1>
+<h2>
+<code>modify(.x, .f, ...)</code>
+</h2>
+<ul>
+<li>Behaves like <code>map()</code></li>
+<li><strong>Except</strong> returns the type of object it receives</li>
+</ul>
+</section>
+<section id="modify-functions" class="slide level1">
+<h1>Modify Functions</h1>
+<h2>
+<code>safely()</code>, <code>quietly()</code>, <code>possibly()</code>, et al.
+</h2>
+<ul>
+<li>“Adverbs”: modify how functions (“verbs”) behave</li>
+<li>Handy complement to <code>map()</code> and friends</li>
+</ul>
+</section>
+<section id="modify-functions-1" class="slide level1">
+<h1>Modify Functions</h1>
+<ul>
+<li><code>safely(.f, otherwise = NULL, quiet = TRUE)</code></li>
+<li>Suppose I want to convert a bunch of things to dates</li>
+<li>If I happen to have some errant values, I want to know about them</li>
+<li>I don’t want to stop everything because one date didn’t work</li>
+</ul>
+</section>
+<section id="modify-functions-2" class="slide level1">
+<h1>Modify Functions</h1>
+<ul>
+<li><code>safely(.f, otherwise = NULL, quiet = TRUE)</code></li>
+</ul>
+<div class="sourceCode" id="cb29"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb29-1" data-line-number="1">bunch_o_ints &lt;-<span class="st"> </span><span class="kw">list</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>, <span class="st">&quot;A&quot;</span>, <span class="dv">4</span>)</a>
+<a class="sourceLine" id="cb29-2" data-line-number="2"></a>
+<a class="sourceLine" id="cb29-3" data-line-number="3">safe_date &lt;-<span class="st"> </span><span class="kw">safely</span>(<span class="dt">.f =</span> as_date, </a>
+<a class="sourceLine" id="cb29-4" data-line-number="4">                    <span class="dt">otherwise =</span> <span class="st">&quot;This position is empty&quot;</span>)</a>
+<a class="sourceLine" id="cb29-5" data-line-number="5"></a>
+<a class="sourceLine" id="cb29-6" data-line-number="6"><span class="kw">map</span>(bunch_o_ints, safe_date, <span class="dt">origin =</span> origin)</a></code></pre></div>
+<pre><code>## [[1]]
+## [[1]]$result
+## [1] &quot;1970-01-02&quot; &quot;1970-01-03&quot;
+## 
+## [[1]]$error
+## NULL
+## 
+## 
+## [[2]]
+## [[2]]$result
+## [1] &quot;This position is empty&quot;
+## 
+## [[2]]$error
+## &lt;simpleError in .local(x, ...): unused argument (origin = origin)&gt;
+## 
+## 
+## [[3]]
+## [[3]]$result
+## [1] &quot;1970-01-05&quot;
+## 
+## [[3]]$error
+## NULL</code></pre>
+</section>
+<section id="reduceaccumulate" class="slide level1">
+<h1>Reduce/Accumulate</h1>
+<ul>
+<li><code>reduce(.x, .f, ..., .init .dir = c(&quot;forward&quot;, &quot;backward&quot;))</code></li>
+<li><code>accumulate(.x, .f, ..., .init, .dir = c(&quot;forward&quot;, &quot;backward&quot;))</code>
+<h2>
+Simplest examples:
+</h2></li>
+</ul>
+<div class="sourceCode" id="cb31"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb31-1" data-line-number="1"><span class="kw">reduce</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="st">`</span><span class="dt">+</span><span class="st">`</span>)</a></code></pre></div>
+<pre><code>## [1] 55</code></pre>
+<div class="sourceCode" id="cb33"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb33-1" data-line-number="1"><span class="kw">accumulate</span>(<span class="dv">1</span><span class="op">:</span><span class="dv">10</span>, <span class="st">`</span><span class="dt">+</span><span class="st">`</span>)</a></code></pre></div>
+<pre><code>##  [1]  1  3  6 10 15 21 28 36 45 55</code></pre>
+</section>
+<section id="reduceaccumulate-1" class="slide level1">
+<h1>Reduce/Accumulate</h1>
+<h2>
+Bigger, more complex:
+</h2>
+<div class="sourceCode" id="cb35"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb35-1" data-line-number="1"><span class="kw">list</span>(df1, df2, df3, df4) <span class="op">%&gt;%</span><span class="st"> </span></a>
+<a class="sourceLine" id="cb35-2" data-line-number="2"><span class="st">  </span><span class="kw">reduce</span>(<span class="dt">.f =</span> full_join)</a></code></pre></div>
+</section>
+<section id="a-map-of-map-varieties" class="slide level1">
+<h1>A Map of <code>map()</code> Varieties</h1>
+<p><img data-src="slc-rug-presentation_files/figure-revealjs/unnamed-chunk-20-1.png" /></p>
+<p><span style="float: right; font-size: small; padding: 50px 0;">Reference: <a href="https://adv-r.hadley.nz/functionals.html" class="uri">https://adv-r.hadley.nz/functionals.html</a></span></p>
+</section>
+<section id="learn-more" class="slide level1">
+<h1>Learn More</h1>
+<ul>
+<li><a href="https://r4ds.had.co.nz/iteration.html" class="uri">https://r4ds.had.co.nz/iteration.html</a></li>
+<li><a href="https://adv-r.hadley.nz/functionals.html" class="uri">https://adv-r.hadley.nz/functionals.html</a></li>
+<li><a href="https://purrr.tidyverse.org" class="uri">https://purrr.tidyverse.org</a></li>
+</ul>
+</section>
+    </div>
+  </div>
+
+  <script src="slc-rug-presentation_files/reveal.js-3.3.0.1/lib/js/head.min.js"></script>
+  <script src="slc-rug-presentation_files/reveal.js-3.3.0.1/js/reveal.js"></script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        // Push each slide change to the browser history
+        history: true,
+        // Vertical centering of slides
+        center: false,
+        // Transition style
+        transition: 'slide', // none/fade/slide/convex/concave/zoom
+        // Transition style for full page slide backgrounds
+        backgroundTransition: 'default', // none/fade/slide/convex/concave/zoom
+
+
+
+        // Optional reveal.js plugins
+        dependencies: [
+          { src: 'slc-rug-presentation_files/reveal.js-3.3.0.1/plugin/notes/notes.js', async: true },
+          { src: 'slc-rug-presentation_files/reveal.js-3.3.0.1/plugin/zoom-js/zoom.js', async: true },
+        ]
+      });
+    </script>
+  <!-- dynamically load mathjax for compatibility with self-contained -->
+  <script>
+    (function () {
+      var script = document.createElement("script");
+      script.type = "text/javascript";
+      script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+      document.getElementsByTagName("head")[0].appendChild(script);
+    })();
+  </script>
+
+<script>
+  (function() {
+    if (window.jQuery) {
+      Reveal.addEventListener( 'slidechanged', function(event) {  
+        window.jQuery(event.previousSlide).trigger('hidden');
+        window.jQuery(event.currentSlide).trigger('shown');
+      });
+    }
+  })();
+</script>
+
+
+  </body>
+</html>
